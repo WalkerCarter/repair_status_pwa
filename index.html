@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repair Status</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        input, button {
+            font-size: 16px;
+            padding: 10px;
+            margin: 10px;
+        }
+        .status-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Check Repair Status</h2>
+    <input type="text" id="searchInput" placeholder="Enter Serial Number or Ticket #">
+    <button onclick="searchRepair()">Search</button>
+    
+    <div class="status-container" id="statusResult"></div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwdkOfZYKe0lEQqkklEx6wMa9YSxDcoumh6XeVG_xyN7ibaix3_4W8bU5vfeeNT5ELy/exec";
+
+        function searchRepair() {
+            const searchTerm = document.getElementById("searchInput").value.trim();
+            if (!searchTerm) {
+                alert("Please enter a Serial Number or Ticket Number.");
+                return;
+            }
+
+            fetch(`${API_URL}?search=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => displayResults(data))
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        function displayResults(results) {
+            const resultDiv = document.getElementById("statusResult");
+            resultDiv.innerHTML = "";
+
+            if (results.length === 0) {
+                resultDiv.innerHTML = "<p>No matching records found.</p>";
+                return;
+            }
+
+            results.forEach(record => {
+                resultDiv.innerHTML += `
+                    <div>
+                        <h3>Repair Status for ${record.instrumentType}</h3>
+                        <p><strong>Customer:</strong> ${record.customerName}</p>
+                        <p><strong>Serial Number:</strong> ${record.serialNumber}</p>
+                        <p><strong>Repair Status:</strong> ${record.repairStatus}</p>
+                        <p><strong>Repair Cost:</strong> ${record.repairCost}</p>
+                        <p><strong>Completion Date:</strong> ${record.completionDate}</p>
+                        <hr>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
